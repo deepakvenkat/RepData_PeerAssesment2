@@ -67,9 +67,46 @@ In order to find the weather events which cause the greatest economic harm, we l
 * Property
 * Crops
 
-These are represented by the PROPDMG and CROPDMG columns. The PROPDMGEXP and CROPDMGEXP columns are used an exponent columns. The values "K", "M" and "B" are taken to be thousand, million and a billion multipliers respectively. We first compute this. 
+These are represented by the PROPDMG and CROPDMG columns. The PROPDMGEXP and CROPDMGEXP columns are used an exponent columns. The values "K", "M" and "B" are taken to be thousand, million and a billion multipliers respectively. We first compute this and store in a DF called `harmful_data_1`
 
 ``` {r}
 harmful_data_1 <- harmful_data %>%
-  mutate(prop_multiplier = (ifelse()))
+  mutate(propdmg_actual = (ifelse(toupper(PROPDMGEXP) == 'K', PROPDMG * 10^3, 
+                           ifelse(toupper(PROPDMGEXP) == 'M', PROPDMG * 10^6,
+                           ifelse(toupper(PROPDMGEXP) == 'B', PROPDMG * 10^9,
+                            PROPDMG)))
+                           )) %>%
+    mutate(cropdmg_actual = (ifelse(toupper(CROPDMGEXP) == 'K', CROPDMG * 10^3, 
+                           ifelse(toupper(CROPDMGEXP) == 'M', CROPDMG * 10^6,
+                           ifelse(toupper(CROPDMGEXP) == 'B', CROPDMG * 10^9,
+                            CROPDMG)))
+                           ))
+
+```
+
+This is then used to compute the top events causing most economic consequences by aggregating on the sum of the property damage and crop damage. We then print out the head of the resulting df which shows the events which caused the most damage to the economy. 
+
+
+``` {r}
+economic_damage_byevent <- harmful_data_1 %>%
+  mutate(total_property_dmg = propdmg_actual + cropdmg_actual) %>%
+  group_by(EVTYPE) %>%
+  summarize(total_dmg = sum(total_property_dmg)) %>%
+  arrange(desc(total_dmg))
+
+head(economic_damage_byevent)
+```
+
+
+```{r}
+top_dmg_events_economic <- head(economic_damage_byevent)
+gp <- ggplot(data = top_dmg_events_economic, aes(x = EVTYPE, y = total_dmg)) +
+  geom_bar(fill = "green", stat = "identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, face = "bold"),
+          plot.title = element_text(face="bold")
+          ) +
+  xlab("Events") +
+  ylab("Damage to Economy") +
+  ggtitle("Weather events causing most damage to economy")
+print(gp)
 ```
