@@ -66,4 +66,10 @@ In order to find the weather events which cause the greatest economic harm, we l
 
 * Property
 * Crops
-These are represented by the PROPDMG and CROPDMG columns. The PROPDMGEXP and CROPDMGEXP columns 
+
+These are represented by the PROPDMG and CROPDMG columns. The PROPDMGEXP and CROPDMGEXP columns are used an exponent columns. The values "K", "M" and "B" are taken to be thousand, million and a billion multipliers respectively. We first compute this. 
+
+``` {r}
+harmful_data_1 <- harmful_data %>%
+  mutate(prop_multiplier = (ifelse()))
+```
