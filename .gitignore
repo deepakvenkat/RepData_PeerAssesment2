@@ -1,0 +1,12 @@
+
+PA2_template_cache/html/__packages
+
+*.RData
+
+*.rdb
+
+*.rdx
+
+*.csv
+
+*.bz2

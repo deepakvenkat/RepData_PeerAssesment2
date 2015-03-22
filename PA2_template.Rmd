@@ -1,0 +1,69 @@
+---
+title: "Analyzing consequences of weather events in the US between 1950 and 2011"
+output: html_document
+keep_md : true
+---
+
+## Synopsis
+
+
+## Data Processing
+We initially load some libraries useful for processing the data and displaying the results. 
+``` {r results = "hide"}
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+```
+The data was downloaded from https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2
+The data is then read using the `read.csv`
+
+``` {r cache = TRUE}
+data <- read.csv(bzfile("repdata-data-StormData.csv.bz2"), header = TRUE)
+```
+
+We then remove all the observations where there is no damage (population or property) caused. To achieve this we filter out rows which have 0s in all the 4 columns below : 
+
+* FATALITIES
+* INJURIES
+* PROPDMG
+* CROPDMG
+
+We do this so as to reduce the size of the data which we need to process. We also are trying to analyze the events which caused damages to property and poulation and hence other observations are irrlevant in the scope of this report. 
+
+We also convert the EVTYPE column into a charcter column since we need to group by it for further results. 
+
+``` {r}
+harmful_data <- data %>%
+  filter(FATALITIES != 0 | INJURIES != 0 | PROPDMG != 0 | CROPDMG != 0)
+harmful_data$EVTYPE = as.character(harmful_data$EVTYPE)
+```
+
+## Results
+
+### Events causing greatest harm to population
+
+In order to find the events which caused the greatest harm to the population we first add a column which contains the sum of the fatalities and injuries for each of the observations. We then find the sum of of this column `population_damage`, grouped by events to give the total population damage per event. We then arrange this in the descending order and take the top 6 rows which give the most damaging events. The list here is a consolidated list for both injuries and fatalities. 
+
+```{r}
+population_damage_byevent <- harmful_data %>%
+  mutate(population_damage = FATALITIES + INJURIES) %>%
+  group_by(EVTYPE) %>%
+  summarize(total_damage = sum(population_damage)) %>%
+  arrange(desc(total_damage))
+head(population_damage_byevent)
+```
+
+We take the summary obtained above and plot it in a barplot. 
+
+``` {r}
+top_damaging_events <- head(population_damage_byevent)
+gp <- ggplot(data = top_damaging_events, aes (x = EVTYPE, y = total_damage)) + geom_bar(fill = "blue", stat = "identity") + xlab("Event") + ylab("Total Population damage") + ggtitle("Top Damaging Events by population")
+print(gp)
+```
+
+### Events causing greatest economic harm
+In order to find the weather events which cause the greatest economic harm, we look at the damage caused to two things : 
+
+* Property
+* Crops
+These are represented by the PROPDMG and CROPDMG columns. The PROPDMGEXP and CROPDMGEXP columns 
