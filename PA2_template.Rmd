@@ -5,7 +5,7 @@ keep_md : true
 ---
 
 ## Synopsis
-
+In this report, we analyze the Storm data from the NOAA database, which contains weather events and their effect on economy and the population. We find the events which caused most ecnonomic damage by looking at the damage these events caused to property and crops. The events which caused the most number of fatalities or injuries were then looked at. We find that while Tornados, Excessive Heat and TSTM Wind are the most catostrophic to humans, Floods, Hurricanes and Tornados are the most damaging to the economy. 
 
 ## Data Processing
 We initially load some libraries useful for processing the data and displaying the results. 
@@ -28,7 +28,7 @@ We then remove all the observations where there is no damage (population or prop
 * PROPDMG
 * CROPDMG
 
-We do this so as to reduce the size of the data which we need to process. We also are trying to analyze the events which caused damages to property and poulation and hence other observations are irrlevant in the scope of this report. 
+We do this so as to reduce the size of the data which we need to process. We also are trying to analyze the events which caused damages to property and population and hence other observations are irrlevant in the scope of this report. 
 
 We also convert the EVTYPE column into a charcter column since we need to group by it for further results. 
 
@@ -42,7 +42,7 @@ harmful_data$EVTYPE = as.character(harmful_data$EVTYPE)
 
 ### Events causing greatest harm to population
 
-In order to find the events which caused the greatest harm to the population we first add a column which contains the sum of the fatalities and injuries for each of the observations. We then find the sum of of this column `population_damage`, grouped by events to give the total population damage per event. We then arrange this in the descending order and take the top 6 rows which give the most damaging events. The list here is a consolidated list for both injuries and fatalities. 
+In order to find the events which caused the greatest harm to the population we first add a column which contains the sum of the fatalities and injuries for each of the observations. We then find the sum of this column `population_damage`, grouped by events to give the total population damage per event. We then arrange this in the descending order and take the top 6 rows which give the most damaging events. The list here is a consolidated list for both injuries and fatalities. 
 
 ```{r}
 population_damage_byevent <- harmful_data %>%
